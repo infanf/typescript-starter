@@ -1,0 +1,10 @@
+/.vs*
+/nbproject*
+/.idea*
+**/node_modules*
+**/build*
+**/temp*
+**/coverage*
+**/data*
+**/test-reports*
+**/.nyc_output*

@@ -1,0 +1,56 @@
+stages:
+  - test
+  - deploy
+
+test app:
+  stage: test
+  image: node:12-alpine
+  script:
+    - "apk add jq"
+    - "npm ci --unsafe"
+    - "npm run test:ci"
+    - "echo Overall code coverage: $(jq '.total | map_values(.pct) | add / (. | length)' coverage/coverage-summary.json) %"
+  coverage: '/Overall code coverage: ([\d.]+) %/'
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+    reports:
+      junit: test-reports/*.xml
+    paths:
+      - coverage/
+      - test-reports/
+
+test-integration app:
+  stage: test
+  image: node:12-alpine
+  script:
+    - "apk add jq"
+    - "npm ci --unsafe"
+    - "npm run integration-test:ci"
+    - "echo Overall code coverage: $(jq '.total | map_values(.pct) | add / (. | length)' coverage/coverage-summary.json) %"
+  coverage: '/Overall code coverage: ([\d.]+) %/'
+  artifacts:
+    name: "$CI_JOB_NAME-$CI_COMMIT_REF_SLUG"
+    reports:
+      junit: test-reports/*.xml
+    paths:
+      - coverage/
+      - test-reports/
+
+deploy app:
+  stage: deploy
+  image: node:12-alpine
+  # Run for tags that match a version tag [wh]
+  only:
+    - /^v[0-9]+\.[0-9]+\.[0-9]+.*$/
+  script:
+    - 'apk add jq sed'
+    # Construct APP_NAME = <name from package.json>-production
+    - "APP_NAME=`cat ./package.json | jq -r .name`-production"
+    # APP_VERSION = taken from commit tag (the part after the v)
+    - "APP_VERSION=`echo $CI_COMMIT_TAG | sed 's/^v//'`"
+    - "docker login -u $CI_DOCKERREG_USER -p $CI_DOCKERREG_PASSWORD $CI_DOCKERREG_URL"
+    - "docker build -f docker/release/Dockerfile --build-arg BUILD_ENVIRONMENT=production -t $APP_NAME:$APP_VERSION -t $APP_NAME:latest ."
+    - "docker tag $APP_NAME:$APP_VERSION $CI_DOCKERREG_IMAGE_URL/$APP_NAME:$APP_VERSION"
+    - "docker tag $APP_NAME:latest $CI_DOCKERREG_IMAGE_URL/$APP_NAME:latest"
+    - "docker push $CI_DOCKERREG_IMAGE_URL/$APP_NAME:$APP_VERSION"
+    - "docker push $CI_DOCKERREG_IMAGE_URL/$APP_NAME:latest"

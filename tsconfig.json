@@ -1,0 +1,16 @@
+{
+  "extends": "./node_modules/@elunic/ecs/tsconfig/tsconfig.json",
+  "compilerOptions": {
+    "rootDir": "./",
+    "outDir": "./build",
+    "lib": [
+      "esnext"
+    ],
+    "target": "esnext",
+    "skipLibCheck": true
+  },
+  "include": [
+    "src/**/*.ts",
+    "test/**/*.ts"
+  ]
+}
