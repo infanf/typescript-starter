@@ -7,6 +7,8 @@ The elunic TypeScript starter
 - [Usage](#usage)
 - [`npm` scripts](#npm-scripts)
 - [Docker shell](#docker-shell)
+- [Framework augmentations](#framework-augmentations)
+  - [NestJS](#nestjs)
 
 
 ## Usage
@@ -44,3 +46,31 @@ To drop into a shell inside a Docker container, run:
 
 Inside the shell, the `ng` command will be available inside, you will be in the project root, 
 and all `npm` scripts (such as `npm run dev`) will be available.
+
+
+## Framework augmentations
+
+### NestJS
+ 
+To add basic NestJS functionality, run:
+
+```bash
+$ npm i --save @nestjs/core @nestjs/common rxjs reflect-metadata @nestjs/platform-express @nestjs/testing
+```
+
+`nest-cli.json` is required to make sure the `nest` cli works properly:
+
+`nest-cli.json`
+```
+{
+ "language": "ts",
+ "collection": "@nestjs/schematics",
+ "sourceRoot": "src"
+}
+```
+
+To add Swagger support, run:
+
+```bash
+$ npm i -s @nestjs/swagger swagger-ui-express
+```
