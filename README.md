@@ -9,6 +9,7 @@ The elunic TypeScript starter
 - [Docker shell](#docker-shell)
 - [Framework augmentations](#framework-augmentations)
   - [NestJS](#nestjs)
+    - [TypeORM](#typeorm)
 
 
 ## Usage
@@ -42,7 +43,9 @@ This is not a complete list. Check the `package.json` to see the complete list.
 
 To drop into a shell inside a Docker container, run:
 
-`npm run shell`
+```shell
+$ npm run shell
+```
 
 Inside the shell, the `ng` command will be available inside, you will be in the project root, 
 and all `npm` scripts (such as `npm run dev`) will be available.
@@ -54,14 +57,14 @@ and all `npm` scripts (such as `npm run dev`) will be available.
  
 To add basic NestJS functionality, run:
 
-```bash
+```shell
 $ npm i --save @nestjs/core @nestjs/common rxjs reflect-metadata @nestjs/platform-express @nestjs/testing
 ```
 
 `nest-cli.json` is required to make sure the `nest` cli works properly:
 
 `nest-cli.json`
-```
+```json
 {
  "language": "ts",
  "collection": "@nestjs/schematics",
@@ -71,6 +74,42 @@ $ npm i --save @nestjs/core @nestjs/common rxjs reflect-metadata @nestjs/platfor
 
 To add Swagger support, run:
 
-```bash
+```shell
 $ npm i -s @nestjs/swagger swagger-ui-express
+```
+
+#### TypeORM
+
+The recommended way to connect a database with nest.js is using _TypeORM_. To add support run
+
+```shell
+$ npm i -s @nestjs/typeorm typeorm mysql typeorm-naming-strategies
+```
+
+and import the TypeORM Module with configuration into your NestJS module:
+
+```javascript
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { SnakeNamingStrategy } from 'typeorm-naming-strategies';
+...
+@Module({
+  imports: [
+    ...,
+    TypeOrmModule.forRoot({
+      type: 'mysql',
+      host: process.env.APP_DB_HOST,
+      port: process.env.APP_DB_PORT || 3306,
+      username: process.env.APP_DB_USER,
+      password: process.env.APP_DB_PASSWORD,
+      database: process.env.APP_DB_NAME,
+      extra: { insecureAuth: true },
+      synchronize: true,
+      namingStrategy: new SnakeNamingStrategy(),
+      entities: [__dirname + '/**/*.entity{.ts,.js}'],
+      migrations: [__dirname + '/migrations/*{.js,.ts}'],
+    }),
+  ],
+  ...
+})
+export class AppModule {}
 ```
