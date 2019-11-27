@@ -1,0 +1,38 @@
+name: Test
+
+on: [push]
+
+jobs:
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - name: npm install and test
+      run: |
+        npm ci --unsafe
+        npm run test:ci
+      env:
+        CI: true
+        
+  integration-test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Setup Node
+      uses: actions/setup-node@v1
+      with:
+        node-version: '12.x'
+    - name: npm install and test
+      run: |
+        npm ci --unsafe
+        npm run integration-test:ci
+      env:
+        CI: true
